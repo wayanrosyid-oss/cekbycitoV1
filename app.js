@@ -321,6 +321,9 @@ function renderWeightPanel(t){
     </div>`;
 }
 
+/* ---------- state: item mana sedang dalam mode edit berat ---------- */
+const expandedWeightItems = new Set();
+
 function renderItems(t){
   const container = el("#d_items");
   const cats = [...new Set(t.items.map(i=>i.category))];
@@ -330,7 +333,10 @@ function renderItems(t){
     const checkedCount = items.filter(i=>i.checked).length;
     html += `<div class="cat-head"><span>${CATEGORY_ICONS[cat]||"📦"} ${escapeHtml(cat)}</span><span>${checkedCount}/${items.length}</span></div>`;
     items.forEach(i=>{
-      const w = (i.weight && i.weight>0) ? `<span class="item-w">${fmtKg(i.weight*(i.qty||1))}</span>` : "";
+      const isEditingWeight = expandedWeightItems.has(i.id);
+      const w = (i.weight && i.weight>0)
+        ? `<span class="item-w" data-editw="${i.id}">${fmtKg(i.weight*(i.qty||1))} ✎</span>`
+        : `<span class="item-w item-w-empty" data-editw="${i.id}">⚖️ isi berat</span>`;
       html += `
         <div class="item ${i.checked?'done':''}" data-item="${i.id}">
           <div class="cb ${i.checked?'on':''}" data-toggle="${i.id}">${i.checked?'✓':''}</div>
@@ -340,6 +346,18 @@ function renderItems(t){
               ${w}
             </div>
             ${(i.needsNote && i.checked) ? `<input class="item-note" data-note="${i.id}" value="${escapeHtml(i.note||'')}" placeholder="Isi jumlah, ukuran, atau catatan lain">` : ''}
+            ${isEditingWeight ? `
+            <div class="item-wedit">
+              <div class="item-wedit-field">
+                <label>Berat/unit (gram)</label>
+                <input type="number" inputmode="numeric" data-wgt="${i.id}" value="${i.weight||''}" placeholder="Contoh: 300">
+              </div>
+              <div class="item-wedit-field">
+                <label>Jumlah</label>
+                <input type="number" inputmode="numeric" data-qty="${i.id}" value="${i.qty||1}" placeholder="1">
+              </div>
+              <button class="item-wedit-done" data-wdone="${i.id}">Selesai</button>
+            </div>` : ''}
           </div>
           <div class="item-del" data-del="${i.id}" title="Hapus barang ini">✕</div>
         </div>`;
@@ -375,6 +393,38 @@ function renderItems(t){
       saveTrips();
       renderDetail();
       toast(`"${removedName}" dihapus dari checklist`);
+    });
+  });
+  els("#d_items [data-editw]").forEach(el2=>{
+    el2.addEventListener("click", ()=>{
+      const id = el2.dataset.editw;
+      if(expandedWeightItems.has(id)) expandedWeightItems.delete(id);
+      else expandedWeightItems.add(id);
+      renderDetail();
+    });
+  });
+  els("#d_items [data-wgt]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const t = getTrip(currentTripId);
+      const item = t.items.find(i=>i.id===inp.dataset.wgt);
+      item.weight = parseFloat(inp.value) || null;
+      saveTrips();
+      renderWeightPanel(t);
+    });
+  });
+  els("#d_items [data-qty]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const t = getTrip(currentTripId);
+      const item = t.items.find(i=>i.id===inp.dataset.qty);
+      item.qty = parseFloat(inp.value) || null;
+      saveTrips();
+      renderWeightPanel(t);
+    });
+  });
+  els("#d_items [data-wdone]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      expandedWeightItems.delete(btn.dataset.wdone);
+      renderDetail();
     });
   });
 }
