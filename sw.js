@@ -1,6 +1,6 @@
 // Naikkan angka ini SETIAP KALI Anda mengubah app.js / index.html / style,
 // supaya user lama otomatis dapat versi baru (bukan stuck di cache lawas).
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = "cek-by-cito-" + CACHE_VERSION;
 
 const APP_SHELL = [
