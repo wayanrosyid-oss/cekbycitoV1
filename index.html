@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<title>Cek by Cito — Checklist Pendakian</title>
+<meta name="description" content="Teman packing sebelum pendakian — checklist pribadi, kalkulator berat, offline & tanpa server.">
+<meta name="theme-color" content="#EFF3DD">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ===== Light (default) ===== */
+  --bg: #EFF3DD;
+  --bg-alt: #F7F9EC;
+  --card: #FFFFFF;
+  --card-2: #F5F3E6;
+  --ink: #223318;
+  --ink-soft: #6E7A5E;
+  --line: #E1E4CE;
+  --forest: #4C9A2A;
+  --forest-deep: #2F6D16;
+  --peach: #F4A69A;
+  --peach-deep: #C4594B;
+  --amber-note: #F6D9A0;
+  --amber-note-line: #E4BE78;
+  --alert-bg: #FBE9E6;
+  --alert: #C4594B;
+  --ok-bg: #E4F3DB;
+  --shadow: 0 1px 2px rgba(40,50,20,.06), 0 8px 20px -10px rgba(40,50,20,.12);
+  --font-display: 'Baloo 2', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-hand: 'Caveat', cursive;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+[data-theme="dark"]{
+  --bg: #14180F;
+  --bg-alt: #191E13;
+  --card: #202619;
+  --card-2: #262D1C;
+  --ink: #EDEFE2;
+  --ink-soft: #9BA488;
+  --line: #313A24;
+  --forest: #7BC950;
+  --forest-deep: #9AE06E;
+  --peach: #E8917F;
+  --peach-deep: #F0AFA1;
+  --amber-note: #3A3520;
+  --amber-note-line: #5C5330;
+  --alert-bg: #3A241F;
+  --alert: #E8917F;
+  --ok-bg: #23361C;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -10px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:var(--font-body);
+  overscroll-behavior-y:none; height:100%;}
+body{display:flex; flex-direction:column; min-height:100vh; transition:background .25s, color .25s;}
+button, input, textarea{font-family:inherit;}
+button{cursor:pointer;}
+
+/* ===== App shell ===== */
+#app{flex:1; display:flex; flex-direction:column; max-width:520px; margin:0 auto; width:100%; position:relative;}
+.view{display:none; padding:0 0 92px; flex:1;}
+.view.active{display:block;}
+
+/* ===== Decorative doodles ===== */
+.doodles{position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0;}
+.doodle{position:absolute; opacity:.55; filter:saturate(.85);}
+[data-theme="dark"] .doodle{opacity:.28;}
+
+/* ===== Top area / hero ===== */
+.topbar{display:flex; align-items:center; justify-content:space-between; padding:18px 20px 0; position:relative; z-index:2;}
+.iconbtn{width:38px; height:38px; border-radius:12px; border:none; background:var(--card); box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ink);}
+.avatar{width:38px; height:38px; border-radius:50%; overflow:hidden; box-shadow:var(--shadow); flex:none;}
+.avatar img{width:100%; height:100%; object-fit:cover;}
+
+.hero{padding:14px 24px 6px; text-align:center; position:relative; z-index:2;}
+.hero-title{font-family:var(--font-display); font-weight:700; font-size:29px; line-height:1.08; color:var(--forest-deep); letter-spacing:-.01em;}
+.hero-badge{display:inline-block; background:var(--peach); color:#5A241C; font-family:var(--font-display); font-weight:700;
+  font-size:13px; padding:4px 14px; border-radius:999px; margin-top:9px;}
+[data-theme="dark"] .hero-badge{color:#3A140D;}
+.hero-tag{font-size:12.5px; color:var(--ink-soft); margin-top:9px; font-weight:500;}
+
+.quote-card{margin:18px 22px 4px; background:var(--card); border-radius:16px; padding:16px 18px 14px;
+  box-shadow:var(--shadow); position:relative; transform:rotate(-.6deg); z-index:2;}
+.quote-text{font-family:var(--font-hand); font-size:18px; line-height:1.42; color:var(--ink); font-weight:600;}
+.quote-mark{position:absolute; bottom:-9px; right:16px; font-size:20px; transform:rotate(8deg);}
+
+.cta-row{padding:22px 22px 4px; position:relative; z-index:2;}
+.btn-cta{width:100%; background:var(--forest); color:#fff; border:none; border-radius:18px; padding:16px;
+  font-size:15.5px; font-weight:700; font-family:var(--font-body); box-shadow:0 10px 22px -8px rgba(76,154,42,.55);
+  display:flex; align-items:center; justify-content:center; gap:8px;}
+
+.sec-label{padding:20px 24px 10px; font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--ink);
+  position:relative; z-index:2;}
+
+/* ===== Help card (sticky-note style) ===== */
+.help-card{margin:0 22px 14px; background:var(--card-2); border-radius:16px; padding:18px 18px 6px;
+  box-shadow:var(--shadow); position:relative; z-index:2;}
+.help-title{font-family:var(--font-display); font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+.step{display:flex; gap:10px; margin-bottom:12px; align-items:flex-start; font-size:13px; line-height:1.5; color:var(--ink-soft);}
+.step b{color:var(--forest-deep); font-weight:700;}
+
+.tips-link{margin:0 22px 20px; background:var(--card); border-radius:16px; padding:15px 18px; box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:13.5px; position:relative; z-index:2;}
+
+/* ===== History list ===== */
+.hist-item{display:flex; align-items:center; gap:12px; background:var(--card); border-radius:16px; padding:13px 15px;
+  margin:0 22px 10px; box-shadow:var(--shadow); position:relative; z-index:2;}
+.hist-ic{width:38px; height:38px; border-radius:11px; background:var(--card-2); display:flex; align-items:center;
+  justify-content:center; font-size:16px; flex:none;}
+.hist-info{flex:1; min-width:0;}
+.hist-name{font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:5px;}
+.hist-date{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+.hist-tail{text-align:right; flex:none;}
+.badge-kg{background:var(--forest); color:#fff; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px;}
+.badge-none{font-size:11px; color:var(--ink-soft);}
+.hist-empty{text-align:center; padding:40px 24px; color:var(--ink-soft); font-size:13px;}
+
+/* ===== Bottom nav ===== */
+.bottomnav{position:fixed; left:0; right:0; bottom:0; z-index:40; background:var(--card); border-top:1px solid var(--line);
+  display:flex; max-width:520px; margin:0 auto; padding-bottom:env(safe-area-inset-bottom);}
+.navbtn{flex:1; border:none; background:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:10px 4px 9px; font-size:10.5px; font-weight:600; color:var(--ink-soft);}
+.navbtn .navic{font-size:19px; line-height:1;}
+.navbtn.active{color:var(--forest-deep);}
+
+/* ===== Sub screens (Checklist detail, Tips, Export, New trip) ===== */
+.subnav{display:flex; align-items:center; gap:10px; padding:16px 18px 8px; position:relative; z-index:2;}
+.backbtn{width:36px; height:36px; border-radius:12px; border:none; background:var(--card); box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--ink); flex:none;}
+.subnav-title{font-family:var(--font-display); font-weight:700; font-size:16px; flex:1;}
+
+.field{padding:0 22px; margin-bottom:18px; position:relative; z-index:2;}
+.field-label{font-size:11.5px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;}
+.field-input{width:100%; padding:13px 15px; border-radius:14px; border:1.5px solid var(--line); background:var(--card);
+  color:var(--ink); font-size:14px; outline:none;}
+.field-input:focus{border-color:var(--forest);}
+.dur-grid{display:grid; grid-template-columns:1fr 1fr; gap:9px;}
+.dur-opt{padding:14px 8px; border-radius:14px; text-align:center; font-size:13px; font-weight:700; border:1.5px solid var(--line);
+  background:var(--card); color:var(--ink-soft);}
+.dur-opt.sel{border-color:var(--forest); background:var(--forest); color:#fff;}
+.skip-txt{text-align:center; font-size:12px; color:var(--ink-soft); text-decoration:underline; margin:8px 0 0; padding-bottom:2px;}
+
+/* Checklist detail */
+.trip-head{padding:4px 24px 14px; position:relative; z-index:2;}
+.trip-name{font-family:var(--font-display); font-weight:700; font-size:19px;}
+.trip-meta{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+
+.weight-panel{margin:0 22px 18px; background:var(--card); border-radius:20px; padding:18px; box-shadow:var(--shadow); position:relative; z-index:2;}
+.wp-top{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;}
+.wp-num{font-family:var(--font-display); font-weight:700; font-size:27px; color:var(--forest-deep);}
+.wp-target{font-size:11px; color:var(--ink-soft); margin-top:4px;}
+.wp-track{height:8px; border-radius:999px; background:var(--card-2); overflow:hidden; margin-bottom:14px;}
+.wp-fill{height:100%; border-radius:999px; background:var(--forest); transition:width .4s;}
+.wp-chips{display:flex; gap:8px;}
+.wp-chip{flex:1; text-align:center; background:var(--card-2); border-radius:12px; padding:9px 4px;}
+.wp-chip .n{font-family:var(--font-mono); font-weight:700; font-size:13px;}
+.wp-chip .l{font-size:9px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; margin-top:2px;}
+.wp-notif{margin-top:12px; font-size:11.5px; background:var(--alert-bg); color:var(--alert); padding:9px 11px; border-radius:11px;}
+.wp-empty{font-size:12px; color:var(--ink-soft); text-align:center; padding:6px 0;}
+.wp-emptybar-btn{display:block; text-align:center; font-size:12px; color:var(--forest-deep); font-weight:700; margin-top:8px;}
+
+.cat-head{padding:14px 24px 8px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--ink-soft); display:flex; justify-content:space-between; position:relative; z-index:2;}
+.item{margin:0 22px 8px; background:var(--card); border-radius:15px; padding:12px 14px; display:flex; gap:11px;
+  align-items:flex-start; box-shadow:var(--shadow); position:relative; z-index:2;}
+.item.done{opacity:.55;}
+.cb{width:24px; height:24px; border-radius:8px; border:2px solid var(--line); flex:none; margin-top:1px;
+  display:flex; align-items:center; justify-content:center; font-size:13px; color:#fff;}
+.cb.on{background:var(--forest); border-color:var(--forest);}
+.item-body{flex:1; min-width:0;}
+.item-top{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+.item-name{font-size:13.5px; font-weight:600;}
+.item-name.strike{text-decoration:line-through; color:var(--ink-soft);}
+.item-w{font-size:10.5px; color:var(--ink-soft); font-family:var(--font-mono); flex:none;}
+.item-note{width:100%; margin-top:8px; padding:8px 11px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card-2); color:var(--ink); font-size:11.5px; outline:none;}
+.add-item-row{margin:8px 22px 0; padding:12px; border-radius:15px; border:1.5px dashed var(--line); text-align:center;
+  font-size:12.5px; font-weight:700; color:var(--ink-soft); position:relative; z-index:2;}
+
+.action-row{display:flex; gap:10px; padding:20px 22px 4px; position:relative; z-index:2;}
+.btn-refresh{flex:none; width:52px; background:var(--card); border:1.5px solid var(--line); border-radius:18px;
+  display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:var(--shadow);}
+.btn-gasss{flex:1; background:var(--forest); color:#fff; border:none; border-radius:18px; padding:16px;
+  font-size:15.5px; font-weight:800; font-family:var(--font-display); box-shadow:0 10px 22px -8px rgba(76,154,42,.5);}
+
+/* Tips */
+.tip-card{margin:0 22px 12px; background:var(--card); border-radius:16px; padding:17px; box-shadow:var(--shadow); position:relative; z-index:2;}
+.tip-head{font-family:var(--font-display); font-weight:700; font-size:14.5px; margin-bottom:9px;}
+.tip-body{font-size:12.5px; line-height:1.75; color:var(--ink-soft);}
+.tip-body b{color:var(--ink); font-weight:700;}
+
+/* Export list & preview */
+.exp-item{display:flex; align-items:center; gap:12px; background:var(--card); border-radius:16px; padding:13px 15px;
+  margin:0 22px 10px; box-shadow:var(--shadow); position:relative; z-index:2;}
+.exp-preview-wrap{padding:6px 22px 0; position:relative; z-index:2;}
+.exp-card{background:var(--card); border-radius:20px; padding:20px; box-shadow:var(--shadow); margin-bottom:20px;}
+.exp-wm{display:flex; align-items:center; gap:9px; padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid var(--line);}
+.exp-wm-logo{width:26px; height:26px; border-radius:8px; overflow:hidden; flex:none;}
+.exp-wm-logo img{width:100%; height:100%; object-fit:cover;}
+.exp-wm-txt{font-size:11px; font-weight:700; color:var(--ink-soft);}
+.exp-trip{font-family:var(--font-display); font-weight:700; font-size:15px; margin-bottom:6px;}
+.exp-line{font-size:11.5px; color:var(--ink-soft); margin-bottom:3px;}
+.exp-btn{width:100%; padding:15px; border-radius:16px; font-size:13.5px; font-weight:700; border:none; margin-bottom:10px;}
+.exp-btn.primary{background:var(--forest); color:#fff;}
+.exp-btn.secondary{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
+
+/* Stats */
+.stats-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 22px 6px; position:relative; z-index:2;}
+.stat-card{background:var(--card); border-radius:16px; padding:16px; box-shadow:var(--shadow); text-align:center;}
+.stat-num{font-family:var(--font-display); font-weight:700; font-size:22px; color:var(--forest-deep);}
+.stat-lbl{font-size:10.5px; color:var(--ink-soft); margin-top:3px;}
+
+/* Modal / sheet */
+.overlay{position:fixed; inset:0; background:rgba(20,24,15,.45); z-index:100; display:none; align-items:flex-end; justify-content:center;}
+.overlay.open{display:flex;}
+.sheet{background:var(--bg); width:100%; max-width:520px; border-radius:24px 24px 0 0; padding:22px; max-height:85vh; overflow-y:auto;
+  padding-bottom:calc(22px + env(safe-area-inset-bottom));}
+.sheet-handle{width:40px; height:4px; border-radius:999px; background:var(--line); margin:0 auto 16px;}
+.sheet h3{font-family:var(--font-display); margin:0 0 14px; font-size:17px;}
+.sheet-row{display:flex; gap:10px; margin-top:16px;}
+.sheet-row button{flex:1; padding:13px; border-radius:14px; border:none; font-weight:700; font-size:13.5px;}
+.btn-ghost{background:var(--card-2); color:var(--ink);}
+.btn-danger{background:var(--alert); color:#fff;}
+.btn-confirm{background:var(--forest); color:#fff;}
+
+.toast{position:fixed; left:50%; bottom:110px; transform:translateX(-50%) translateY(20px); background:var(--ink);
+  color:var(--bg); padding:11px 20px; border-radius:999px; font-size:12.5px; font-weight:600; z-index:200; opacity:0;
+  transition:opacity .25s, transform .25s; pointer-events:none; max-width:85%; text-align:center;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+.select-inline{width:100%; padding:11px 13px; border-radius:12px; border:1.5px solid var(--line); background:var(--card);
+  color:var(--ink); font-size:13px; margin-bottom:14px;}
+
+.empty-state{text-align:center; padding:60px 30px; color:var(--ink-soft); font-size:13px; position:relative; z-index:2;}
+.empty-emoji{font-size:38px; margin-bottom:10px;}
+</style>
+</head>
+<body data-theme="light">
+<div id="app">
+
+  <!-- ============ HOME ============ -->
+  <div class="view active" id="view-home">
+    <div class="doodles" id="home-doodles"></div>
+    <div class="topbar">
+      <button class="iconbtn" id="menuBtn">☰</button>
+      <div class="avatar"><img src="icons/icon-192.png" alt=""></div>
+    </div>
+    <div class="hero">
+      <div class="hero-title">Checklist<br>Pendakian</div>
+      <div class="hero-badge">by Cito</div>
+      <div class="hero-tag">Teman Packing Sebelum Pendakian</div>
+    </div>
+    <div class="quote-card">
+      <div class="quote-text">"Gunung tidak ke mana-mana, tapi persiapan yang baik membawamu pulang dengan selamat."</div>
+      <div class="quote-mark">✍️</div>
+    </div>
+    <div class="cta-row">
+      <button class="btn-cta" id="newTripBtn">＋ Buat Checklist Baru</button>
+    </div>
+    <div class="help-card">
+      <div class="help-title">📝 Cara Pakai</div>
+      <div class="step"><b>1.</b> Buat checklist baru untuk tripmu</div>
+      <div class="step"><b>2.</b> Isi barang & centang saat packing</div>
+      <div class="step"><b>3.</b> Cek total berat carrier-mu (opsional)</div>
+    </div>
+    <a class="tips-link" id="homeTipsBtn">📖 Tips Packing <span>→</span></a>
+  </div>
+
+  <!-- ============ CHECKLIST LIST (tab 2) ============ -->
+  <div class="view" id="view-list">
+    <div class="doodles"></div>
+    <div class="subnav" style="padding-top:20px;">
+      <div class="subnav-title">Checklist Saya</div>
+      <button class="iconbtn" id="statsBtn">📊</button>
+    </div>
+    <div id="listContainer"></div>
+  </div>
+
+  <!-- ============ TIPS (tab 3) ============ -->
+  <div class="view" id="view-tips">
+    <div class="doodles"></div>
+    <div class="subnav" style="padding-top:20px;"><div class="subnav-title">📖 Tips Packing</div></div>
+    <div class="tip-card">
+      <div class="tip-head">🎒 Urutan Packing</div>
+      <div class="tip-body">
+        <b>Paling bawah:</b> sleeping bag, baju tidur — jarang dipakai selama jalan<br><br>
+        <b>Tengah, dekat punggung:</b> barang berat — tenda, logistik, alat masak<br><br>
+        <b>Atas:</b> jas hujan, jaket, P3K — butuh diambil cepat<br><br>
+        <b>Kantong luar:</b> air minum, snack, headlamp — akses tanpa buka carrier
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-head">⚖️ Prinsip Umum</div>
+      <div class="tip-body">Bagi berat merata kiri-kanan carrier. Barang yang harus tetap kering dibungkus plastik/dry bag terpisah. Sisakan sedikit ruang kosong untuk barang yang dipungut di jalan.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-head">📊 Manajemen Berat</div>
+      <div class="tip-body">Total bawaan idealnya 20-25% dari berat badan sendiri. Kalau base weight sudah berat, kurangi dulu barang non-esensial sebelum nambah logistik.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-head">🌧️ Kondisi Khusus</div>
+      <div class="tip-body">
+        <b>Musim hujan:</b> prioritaskan dry bag & jas hujan cadangan<br><br>
+        <b>Trip singkat:</b> fokus air minum & P3K, kurangi peralatan tidur<br><br>
+        <b>Trip panjang:</b> perhitungkan logistik makanan ekstra & baterai cadangan
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ EXPORT LIST (tab 4) ============ -->
+  <div class="view" id="view-exportlist">
+    <div class="doodles"></div>
+    <div class="subnav" style="padding-top:20px;"><div class="subnav-title">Export Checklist</div></div>
+    <div id="exportListContainer"></div>
+  </div>
+
+  <!-- ============ NEW TRIP FORM ============ -->
+  <div class="view" id="view-newtrip">
+    <div class="doodles"></div>
+    <div class="subnav">
+      <button class="backbtn" data-back="view-home">←</button>
+      <div class="subnav-title">Checklist Baru</div>
+    </div>
+    <div class="field">
+      <div class="field-label">Nama Trip</div>
+      <input class="field-input" id="nt_name" placeholder="Contoh: Semeru, Juli 2026">
+    </div>
+    <div class="field">
+      <div class="field-label">Durasi Pendakian</div>
+      <div class="dur-grid" id="nt_duration">
+        <div class="dur-opt sel" data-dur="oneday">One Day</div>
+        <div class="dur-opt" data-dur="2d1n">2D1N</div>
+        <div class="dur-opt" data-dur="3d2n">3D2N</div>
+        <div class="dur-opt" data-dur="4d3n">4D3N+</div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Berat Badan (kg) — opsional</div>
+      <input class="field-input" id="nt_weight" type="number" inputmode="numeric" placeholder="Contoh: 65">
+      <div class="skip-txt" id="nt_skip">Lewati, saya isi target manual nanti</div>
+    </div>
+    <div class="cta-row" style="padding-top:2px;">
+      <button class="btn-cta" id="nt_submit">Buat Checklist →</button>
+    </div>
+  </div>
+
+  <!-- ============ CHECKLIST DETAIL ============ -->
+  <div class="view" id="view-detail">
+    <div class="doodles"></div>
+    <div class="subnav">
+      <button class="backbtn" data-back="view-list">←</button>
+      <div class="subnav-title">&nbsp;</div>
+      <button class="iconbtn" id="pinBtn">☆</button>
+      <button class="iconbtn" id="deleteBtn">🗑️</button>
+    </div>
+    <div class="trip-head">
+      <div class="trip-name" id="d_name">—</div>
+      <div class="trip-meta" id="d_meta">—</div>
+    </div>
+    <div id="d_weightpanel"></div>
+    <div id="d_items"></div>
+    <div class="add-item-row" id="addItemBtn">＋ Tambah Barang Manual</div>
+    <div class="action-row">
+      <button class="btn-refresh" id="refreshBtn" title="Reset checklist">↺</button>
+      <button class="btn-gasss" id="gasssBtn">Gasss 👊</button>
+    </div>
+  </div>
+
+  <!-- ============ EXPORT PREVIEW ============ -->
+  <div class="view" id="view-exportpreview">
+    <div class="doodles"></div>
+    <div class="subnav">
+      <button class="backbtn" data-back="view-exportlist">←</button>
+      <div class="subnav-title">Export</div>
+    </div>
+    <div class="exp-preview-wrap">
+      <div class="exp-card" id="exp_card">
+        <div class="exp-wm">
+          <div class="exp-wm-logo"><img src="icons/icon-192.png"></div>
+          <div class="exp-wm-txt">Cek by Cito</div>
+        </div>
+        <div class="exp-trip" id="exp_trip">—</div>
+        <div class="exp-line" id="exp_weight">—</div>
+        <div class="exp-line" id="exp_count">—</div>
+      </div>
+      <button class="exp-btn primary" id="exportImgBtn">📤 Export sebagai Gambar</button>
+      <button class="exp-btn secondary" id="exportPdfBtn">📄 Export sebagai PDF</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom nav -->
+<div class="bottomnav">
+  <button class="navbtn active" data-view="view-home"><span class="navic">🏠</span>Home</button>
+  <button class="navbtn" data-view="view-list"><span class="navic">📋</span>Checklist</button>
+  <button class="navbtn" data-view="view-tips"><span class="navic">💡</span>Tips</button>
+  <button class="navbtn" data-view="view-exportlist"><span class="navic">📤</span>Export</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Menu sheet -->
+<div class="overlay" id="menuOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Menu</h3>
+    <div class="step" id="themeToggleRow" style="cursor:pointer; padding:12px 0; border-bottom:1px solid var(--line);">🌓 &nbsp;Mode Gelap/Terang</div>
+    <div class="step" id="statsMenuRow" style="cursor:pointer; padding:12px 0; border-bottom:1px solid var(--line);">📊 &nbsp;Statistik Saya</div>
+    <div class="step" id="backupExportRow" style="cursor:pointer; padding:12px 0; border-bottom:1px solid var(--line);">💾 &nbsp;Export Semua Data (Backup)</div>
+    <div class="step" id="backupImportRow" style="cursor:pointer; padding:12px 0;">📥 &nbsp;Import Data</div>
+    <input type="file" id="importFileInput" accept=".json" style="display:none">
+    <div class="sheet-row"><button class="btn-ghost" id="menuCloseBtn">Tutup</button></div>
+  </div>
+</div>
+
+<!-- Add item sheet -->
+<div class="overlay" id="addItemOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Tambah Barang</h3>
+    <div class="field-label">Nama Barang</div>
+    <input class="field-input" id="ai_name" placeholder="Contoh: Trekking Pole">
+    <div class="field-label">Kategori</div>
+    <select class="select-inline" id="ai_category"></select>
+    <div class="field-label">Jenis Bawaan</div>
+    <select class="select-inline" id="ai_jenis">
+      <option value="tas">Barang Tas</option>
+      <option value="habis">Habis Pakai</option>
+      <option value="badan">Dipakai di Badan</option>
+    </select>
+    <div class="field-label">Berat per Unit (gram) — opsional</div>
+    <input class="field-input" id="ai_weight" type="number" inputmode="numeric" placeholder="Contoh: 300" style="margin-bottom:14px;">
+    <div class="field-label">Jumlah — opsional, default 1</div>
+    <input class="field-input" id="ai_qty" type="number" inputmode="numeric" placeholder="1" style="margin-bottom:14px;">
+    <div class="sheet-row">
+      <button class="btn-ghost" id="ai_cancel">Batal</button>
+      <button class="btn-confirm" id="ai_save">Tambah</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm reset sheet -->
+<div class="overlay" id="resetOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Reset Checklist Ini?</h3>
+    <div class="step">Semua centang dan catatan akan hilang. Daftar barang tetap sama, checklist ini bisa dipakai ulang untuk trip berikutnya.</div>
+    <div class="sheet-row">
+      <button class="btn-ghost" id="resetCancel">Batal</button>
+      <button class="btn-danger" id="resetConfirm">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm delete sheet -->
+<div class="overlay" id="deleteOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Hapus Checklist Ini?</h3>
+    <div class="step">Checklist beserta semua isinya akan dihapus permanen dan tidak bisa dikembalikan.</div>
+    <div class="sheet-row">
+      <button class="btn-ghost" id="deleteCancel">Batal</button>
+      <button class="btn-danger" id="deleteConfirm">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats sheet -->
+<div class="overlay" id="statsOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>📊 Statistik Saya</h3>
+    <div class="stats-grid" id="statsGrid" style="padding:0;"></div>
+    <div class="sheet-row"><button class="btn-ghost" id="statsClose">Tutup</button></div>
+  </div>
+</div>
+
+<!-- Onboarding overlay -->
+<div class="overlay" id="onboardOverlay">
+  <div class="sheet" id="onboardSheet">
+    <div class="sheet-handle"></div>
+    <div id="onboardContent"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
