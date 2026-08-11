@@ -22,7 +22,8 @@ function el(sel){ return document.querySelector(sel); }
 function els(sel){ return Array.from(document.querySelectorAll(sel)); }
 function escapeHtml(s){ return (s==null?"":String(s)).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function fmtKg(grams){
-  if(!grams || grams<=0) return "0 kg";
+  if(!grams || grams<=0) return "0 g";
+  if(grams < 1000) return Math.round(grams) + " g";
   const kg = grams/1000;
   return (kg % 1 === 0 ? kg.toFixed(0) : kg.toFixed(1)) + " kg";
 }
