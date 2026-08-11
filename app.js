@@ -190,6 +190,7 @@ el("#homeTipsBtn").addEventListener("click", ()=> showView("view-tips"));
 el("#newTripBtn").addEventListener("click", ()=>{
   el("#nt_name").value = "";
   el("#nt_weight").value = "";
+  selectedDuration = "oneday";
   els("#nt_duration .dur-opt").forEach(o=>o.classList.toggle("sel", o.dataset.dur==="oneday"));
   showView("view-newtrip");
 });
@@ -340,6 +341,7 @@ function renderItems(t){
             </div>
             ${(i.needsNote && i.checked) ? `<input class="item-note" data-note="${i.id}" value="${escapeHtml(i.note||'')}" placeholder="Isi jumlah, ukuran, atau catatan lain">` : ''}
           </div>
+          <div class="item-del" data-del="${i.id}" title="Hapus barang ini">✕</div>
         </div>`;
     });
   });
@@ -360,6 +362,19 @@ function renderItems(t){
       const item = t.items.find(i=>i.id===inp.dataset.note);
       item.note = inp.value;
       saveTrips();
+    });
+  });
+  els("#d_items [data-del]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const t = getTrip(currentTripId);
+      const idx = t.items.findIndex(i=>i.id===btn.dataset.del);
+      if(idx===-1) return;
+      const removedName = t.items[idx].name;
+      t.items.splice(idx,1);
+      saveTrips();
+      renderDetail();
+      toast(`"${removedName}" dihapus dari checklist`);
     });
   });
 }
